@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GET.AT GmbH – Digital Media Services</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <style>
+    :root {
+      --bg: #f8f6f1;
+      --bg2: #f0ede6;
+      --text: #1a1f35;
+      --muted: #7a7f90;
+      --accent: #c41e3a;
+      --accent2: #9a1830;
+      --border: #ddd8cd;
+      --surface: #ffffff;
+      --font-sans: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+    
+    /* Navigation */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      padding: 1.5rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.4s ease;
+    }
+    
+    nav.scrolled {
+      background: rgba(248, 246, 241, 0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 3rem;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+    
+    .logo span { color: var(--accent); }
+    
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+    
+    .nav-links a {
+      text-decoration: none;
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: color 0.3s;
+      position: relative;
+    }
+    
+    .nav-links a:hover { color: var(--text); }
+    
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0;
+      width: 0; height: 2px;
+      background: var(--accent);
+      transition: width 0.3s;
+    }
+    
+    .nav-links a:hover::after { width: 100%; }
+    
+    .nav-cta {
+      background: var(--accent);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+    }
+    
+    .nav-cta:hover {
+      background: var(--accent2);
+      transform: translateY(-2px);
+    }
+    
+    /* Hero Section */
+    .hero {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+    
+    .hero-bg img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.7);
+    }
+    
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(26,31,53,0.8) 0%, rgba(196,30,58,0.3) 100%);
+      z-index: 1;
+    }
+    
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 900px;
+      padding: 0 2rem;
+    }
+    
+    .hero-tag {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.7);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-bottom: 1.5rem;
+    }
+    
+    .hero h1 {
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 800;
+      color: white;
+      line-height: 1.05;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.03em;
+    }
+    
+    .hero h1 .accent { color: var(--accent); }
+    
+    .hero p {
+      font-size: 1.25rem;
+      color: rgba(255,255,255,0.8);
+      max-width: 600px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.6;
+    }
+    
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+      display: inline-block;
+    }
+    
+    .btn-primary:hover {
+      background: var(--accent2);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(196,30,58,0.3);
+    }
+    
+    .btn-secondary {
+      background: transparent;
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      border: 2px solid rgba(255,255,255,0.3);
+      transition: all 0.3s;
+      display: inline-block;
+    }
+    
+    .btn-secondary:hover {
+      border-color: white;
+      background: rgba(255,255,255,0.1);
+    }
+    
+    /* Text Mask Reveal Section */
+    .text-mask-section {
+      padding: 10rem 2rem;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .text-mask-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+    }
+    
+    .text-mask-title {
+      font-size: clamp(3rem, 10vw, 8rem);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, var(--text) 0%, var(--accent) 50%, var(--text) 100%);
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .text-mask-subtitle {
+      font-size: 1.25rem;
+      color: var(--muted);
+      margin-top: 2rem;
+      max-width: 500px;
+      line-height: 1.6;
+    }
+    
+    /* Services Accordion */
+    .services-section {
+      padding: 8rem 2rem;
+      background: var(--bg2);
+    }
+    
+    .services-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .section-header {
+      text-align: center;
+      margin-bottom: 5rem;
+    }
+    
+    .section-header h2 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    
+    .section-header p {
+      color: var(--muted);
+      font-size: 1.1rem;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    
+    .accordion {
+      display: flex;
+      gap: 1rem;
+      height: 500px;
+    }
+    
+    .accordion-item {
+      flex: 1;
+      background: var(--surface);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: flex 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      position: relative;
+      border: 1px solid var(--border);
+    }
+    
+    .accordion-item:hover,
+    .accordion-item.active {
+      flex: 3;
+    }
+    
+    .accordion-item .accordion-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0.1;
+      transition: opacity 0.4s;
+    }
+    
+    .accordion-item:hover .accordion-bg,
+    .accordion-item.active .accordion-bg {
+      opacity: 0.2;
+    }
+    
+    .accordion-content {
+      position: relative;
+      z-index: 2;
+      padding: 2rem;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    
+    .accordion-content h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transition: all 0.4s;
+    }
+    
+    .accordion-item:hover .accordion-content h3,
+    .accordion-item.active .accordion-content h3 {
+      writing-mode: horizontal-tb;
+      font-size: 2rem;
+    }
+    
+    .accordion-content p {
+      color: var(--muted);
+      opacity: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: all 0.4s 0.1s;
+    }
+    
+    .accordion-item:hover .accordion-content p,
+    .accordion-item.active .accordion-content p {
+      opacity: 1;
+      max-height: 200px;
+      margin-top: 1rem;
+    }
+    
+    /* Stats Section */
+    .stats-section {
+      padding: 8rem 2rem;
+      background: var(--bg);
+    }
+    
+    .stats-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 3rem;
+      text-align: center;
+    }
+    
+    .stat-item h3 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--accent);
+      font-family: var(--font-mono);
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-item p {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    
+    /* Portfolio Section */
+    .portfolio-section {
+      padding: 8rem 2rem;
+      background: var(--bg2);
+    }
+    
+    .portfolio-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+    
+    .portfolio-item {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      aspect-ratio: 16/10;
+      cursor: pointer;
+    }
+    
+    .portfolio-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s;
+    }
+    
+    .portfolio-item:hover img {
+      transform: scale(1.1);
+    }
+    
+    .portfolio-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(26,31,53,0.9) 0%, transparent 60%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 1.5rem;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    
+    .portfolio-item:hover .portfolio-overlay {
+      opacity: 1;
+    }
+    
+    .portfolio-overlay h4 {
+      color: white;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    .portfolio-overlay p {
+      color: rgba(255,255,255,0.7);
+      font-size: 0.9rem;
+    }
+    
+    /* CTA Section */
+    .cta-section {
+      padding: 8rem 2rem;
+      background: var(--text);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(196,30,58,0.2) 0%, transparent 70%);
+    }
+    
+    .cta-content {
+      position: relative;
+      z-index: 2;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    
+    .cta-section h2 {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 800;
+      color: white;
+      margin-bottom: 1.5rem;
+    }
+    
+    .cta-section p {
+      color: rgba(255,255,255,0.7);
+      font-size: 1.2rem;
+      margin-bottom: 2.5rem;
+    }
+    
+    .particle-btn {
+      position: relative;
+      display: inline-block;
+      padding: 1.25rem 3rem;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+    
+    .particle-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 40px rgba(196,30,58,0.4);
+    }
+    
+    /* Contact Section */
+    .contact-section {
+      padding: 8rem 2rem;
+      background: var(--bg);
+    }
+    
+    .contact-container {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    
+    .contact-info {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+    
+    .contact-item {
+      padding: 2rem;
+      background: var(--surface);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+    }
+    
+    .contact-item h4 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .contact-item p {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    
+    /* Footer */
+    footer {
+      padding: 3rem 2rem;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    
+    .footer-copy {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    
+    /* Mobile */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .accordion { flex-direction: column; height: auto; }
+      .accordion-item { height: 200px; }
+      .stats-container { grid-template-columns: repeat(2, 1fr); }
+      .portfolio-grid { grid-template-columns: 1fr; }
+      .contact-info { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav id="navbar">
+    <a href="#" class="logo">GET<span>.</span>AT</a>
+    <ul class="nav-links">
+      <li><a href="#services">Leistungen</a></li>
+      <li><a href="#portfolio">Showcases</a></li>
+      <li><a href="#stats">Über uns</a></li>
+      <li><a href="#contact">Kontakt</a></li>
+    </ul>
+    <a href="#contact" class="nav-cta">Jetzt anfragen</a>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-bg">
+      <img src="assets/hero_bg.jpg" alt="GET.AT Digital Media">
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <p class="hero-tag">Digital Media Services</p>
+      <h1>Wir bringen Ihr Event <span class="accent">live</span> auf die Bühne</h1>
+      <p>Professionelle Livestreaming-Lösungen mit bis zu 8 Kameras für Ihre Events, Pressekonferenzen und Social Media Auftritte.</p>
+      <div class="hero-buttons">
+        <a href="#contact" class="btn-primary">Jetzt anfragen</a>
+        <a href="#portfolio" class="btn-secondary">Showcases ansehen</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="text-mask-section">
+    <div class="text-mask-container">
+      <h2 class="text-mask-title" id="textMask">Digital.<br>Live.<br>Erlebt.</h2>
+      <p class="text-mask-subtitle">Von der Idee bis zur Live-Übertragung – wir begleiten Sie bei jedem Schritt Ihrer digitalen Medienproduktion.</p>
+    </div>
+  </section>
+
+  <section class="services-section" id="services">
+    <div class="services-container">
+      <div class="section-header">
+        <h2>Unsere Leistungen</h2>
+        <p>Maßgeschneiderte Lösungen für Ihre digitale Präsenz</p>
+      </div>
+      <div class="accordion">
+        <div class="accordion-item active">
+          <div class="accordion-bg" style="background-image: url('https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=800')"></div>
+          <div class="accordion-content">
+            <h3>Event Livestream</h3>
+            <p>Live-Übertragung Ihrer Events auf Social Media mit bis zu 8 Kameras. Professionell, zuverlässig, weltweit erreichbar.</p>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-bg" style="background-image: url('https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800')"></div>
+          <div class="accordion-content">
+            <h3>Pressekonferenz</h3>
+            <p>Live-Streaming für Journalisten direkt aus der Redaktion. Ihre Brand News in Echtzeit übertragen.</p>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-bg" style="background-image: url('https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800')"></div>
+          <div class="accordion-content">
+            <h3>Imagefilm</h3>
+            <p>Präsentieren Sie Ihr Unternehmen mit einem professionellen Imagefilm – von der Konzeption bis zur Postproduktion.</p>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-bg" style="background-image: url('https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800')"></div>
+          <div class="accordion-content">
+            <h3>Social Media</h3>
+            <p>Content Creation für Ihren multimedialen Auftritt. Reportagen, Clips und mehr für maximale Reichweite.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats-section" id="stats">
+    <div class="stats-container">
+      <div class="stat-item">
+        <h3 class="odometer" data-target="8">0</h3>
+        <p>Kameras gleichzeitig</p>
+      </div>
+      <div class="stat-item">
+        <h3 class="odometer" data-target="500">0</h3>
+        <p>+ Events gestreamt</p>
+      </div>
+      <div class="stat-item">
+        <h3 class="odometer" data-target="15">0</h3>
+        <p>Jahre Erfahrung</p>
+      </div>
+      <div class="stat-item">
+        <h3 class="odometer" data-target="100">0</h3>
+        <p>% Zufriedenheit</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="portfolio-section" id="portfolio">
+    <div class="portfolio-container">
+      <div class="section-header">
+        <h2>Showcases</h2>
+        <p>Eine Auswahl unserer erfolgreichsten Projekte</p>
+      </div>
+      <div class="portfolio-grid">
+        <div class="portfolio-item">
+          <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800" alt="Eurovision Song Contest">
+          <div class="portfolio-overlay">
+            <h4>Eurovision Song Contest 2026</h4>
+            <p>Pressekonferenz Livestream</p>
+          </div>
+        </div>
+        <div class="portfolio-item">
+          <img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800" alt="Corporate Event">
+          <div class="portfolio-overlay">
+            <h4>Corporate Event Wien</h4>
+            <p>8-Kamera Livestream</p>
+          </div>
+        </div>
+        <div class="portfolio-item">
+          <img src="https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=800" alt="Imagefilm">
+          <div class="portfolio-overlay">
+            <h4>Imagefilm Produktion</h4>
+            <p>Full-Service Videoproduktion</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="cta-content">
+      <h2>Bereit für Ihren nächsten Livestream?</h2>
+      <p>Kontaktieren Sie uns jetzt und lassen Sie uns Ihr Event gemeinsam digital erleben.</p>
+      <button class="particle-btn" id="particleBtn">Jetzt anfragen</button>
+    </div>
+  </section>
+
+  <section class="contact-section" id="contact">
+    <div class="contact-container">
+      <div class="section-header">
+        <h2>Kontakt</h2>
+        <p>Wir freuen uns auf Ihre Nachricht</p>
+      </div>
+      <div class="contact-info">
+        <div class="contact-item">
+          <h4>Adresse</h4>
+          <p>Renngasse 5/11, 4. Stock<br>1010 Wien, Österreich</p>
+        </div>
+        <div class="contact-item">
+          <h4>Telefon</h4>
+          <p>+43 50 9553</p>
+        </div>
+        <div class="contact-item">
+          <h4>E-Mail</h4>
+          <p>office@get.at</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-copy">© 2026 Daniel Schneider |►►► Fast Forward Media</div>
+  </footer>
+
+  <script>
+    // Navigation scroll effect
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) navbar.classList.add('scrolled');
+      else navbar.classList.remove('scrolled');
+    });
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+    // Text Mask Reveal Animation
+    gsap.registerPlugin(ScrollTrigger);
+    
+    gsap.to('.text-mask-title', {
+      backgroundPosition: '200% 0',
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.text-mask-section',
+        start: 'top 80%',
+        end: 'bottom 20%',
+        scrub: 1
+      }
+    });
+
+    // Odometer Counter Animation
+    const odometers = document.querySelectorAll('.odometer');
+    odometers.forEach(odometer => {
+      const target = parseInt(odometer.dataset.target);
+      gsap.to(odometer, {
+        innerHTML: target,
+        duration: 2,
+        snap: { innerHTML: 1 },
+        scrollTrigger: {
+          trigger: odometer,
+          start: 'top 85%',
+          once: true
+        }
+      });
+    });
+
+    // Accordion interaction
+    const accordionItems = document.querySelectorAll('.accordion-item');
+    accordionItems.forEach(item => {
+      item.addEventListener('mouseenter', () => {
+        accordionItems.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+
+    // Particle Button Effect
+    const particleBtn = document.getElementById('particleBtn');
+    particleBtn.addEventListener('click', function(e) {
+      const rect = this.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('span');
+        particle.style.cssText = `
+          position: absolute;
+          width: 6px; height: 6px;
+          background: #c41e3a;
+          border-radius: 50%;
+          pointer-events: none;
+          left: ${x}px; top: ${y}px;
+        `;
+        this.appendChild(particle);
+        
+        const angle = (Math.PI * 2 * i) / 20;
+        const velocity = 50 + Math.random() * 100;
+        const vx = Math.cos(angle) * velocity;
+        const vy = Math.sin(angle) * velocity;
+        
+        gsap.to(particle, {
+          x: vx,
+          y: vy,
+          opacity: 0,
+          duration: 0.8 + Math.random() * 0.4,
+          ease: 'power2.out',
+          onComplete: () => particle.remove()
+        });
+      }
+      
+      // Navigate to contact
+      document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Portfolio hover effect
+    const portfolioItems = document.querySelectorAll('.portfolio-item');
+    portfolioItems.forEach(item => {
+      item.addEventListener('mouseenter', () => {
+        gsap.to(item.querySelector('img'), { scale: 1.1, duration: 0.6 });
+        gsap.to(item.querySelector('.portfolio-overlay'), { opacity: 1, duration: 0.4 });
+      });
+      item.addEventListener('mouseleave', () => {
+        gsap.to(item.querySelector('img'), { scale: 1, duration: 0.6 });
+        gsap.to(item.querySelector('.portfolio-overlay'), { opacity: 0, duration: 0.4 });
+      });
+    });
+  </script>
+</body>
+</html>
