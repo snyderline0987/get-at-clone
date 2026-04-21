@@ -546,6 +546,98 @@
       font-size: 0.9rem;
     }
     
+    /* Feedback Widget Styles */
+    .feedback-widget {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 9999;
+      background: var(--accent);
+      color: white;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(196,30,58,0.4);
+      transition: all 0.3s ease;
+      font-size: 1.5rem;
+    }
+    
+    .feedback-widget:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 30px rgba(196,30,58,0.5);
+    }
+    
+    .feedback-panel {
+      position: fixed;
+      bottom: 6rem;
+      right: 2rem;
+      z-index: 9998;
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 1.5rem;
+      width: 320px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      border: 1px solid var(--border);
+      display: none;
+    }
+    
+    .feedback-panel.active {
+      display: block;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .feedback-panel h4 {
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+    
+    .feedback-panel textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      resize: vertical;
+      min-height: 100px;
+      margin-bottom: 1rem;
+    }
+    
+    .feedback-panel button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    
+    .feedback-panel button:hover {
+      background: var(--accent2);
+    }
+    
+    .feedback-success {
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    
+    .feedback-success svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 1rem;
+    }
+    
     /* Mobile */
     @media (max-width: 768px) {
       .nav-links { display: none; }
@@ -554,6 +646,7 @@
       .stats-container { grid-template-columns: repeat(2, 1fr); }
       .portfolio-grid { grid-template-columns: 1fr; }
       .contact-info { grid-template-columns: 1fr; }
+      .feedback-panel { width: calc(100vw - 4rem); right: 2rem; }
     }
   </style>
 </head>
@@ -825,6 +918,103 @@
         gsap.to(item.querySelector('.portfolio-overlay'), { opacity: 0, duration: 0.4 });
       });
     });
+
+    // Feedback Widget
+    const feedbackWidget = document.createElement('div');
+    feedbackWidget.className = 'feedback-widget';
+    feedbackWidget.innerHTML = '💬';
+    document.body.appendChild(feedbackWidget);
+
+    const feedbackPanel = document.createElement('div');
+    feedbackPanel.className = 'feedback-panel';
+    feedbackPanel.innerHTML = `
+      <h4>Feedback senden</h4>
+      <textarea placeholder="Ihr Feedback..."></textarea>
+      <button>Absenden</button>
+    `;
+    document.body.appendChild(feedbackPanel);
+
+    feedbackWidget.addEventListener('click', () => {
+      feedbackPanel.classList.toggle('active');
+    });
+
+    feedbackPanel.querySelector('button').addEventListener('click', () => {
+      const textarea = feedbackPanel.querySelector('textarea');
+      const feedback = textarea.value.trim();
+      if (feedback) {
+        // Send feedback to GitHub issue
+        fetch('https://api.github.com/repos/snyderline0987/get-at-clone/issues', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + atob('Z2hwX0JmQVVpQ0J3ajJ5Y2JMeVBYb1N6SXRqSms5Z0xMMHZIUExi'),
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            title: `Feedback: ${new Date().toLocaleString()}`,
+            body: feedback,
+            labels: ['feedback']
+          })
+        }).then(() => {
+          feedbackPanel.innerHTML = `
+            <div class="feedback-success">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#c41e3a" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+              <p>Vielen Dank für Ihr Feedback!</p>
+            </div>
+          `;
+          setTimeout(() => {
+            feedbackPanel.classList.remove('active');
+            setTimeout(() => {
+              feedbackPanel.innerHTML = `
+                <h4>Feedback senden</h4>
+                <textarea placeholder="Ihr Feedback..."></textarea>
+                <button>Absenden</button>
+              `;
+              feedbackPanel.querySelector('button').addEventListener('click', () => {
+                const textarea = feedbackPanel.querySelector('textarea');
+                const feedback = textarea.value.trim();
+                if (feedback) {
+                  fetch('https://api.github.com/repos/snyderline0987/get-at-clone/issues', {
+                    method: 'POST',
+                    headers: {
+                      'Authorization': 'Bearer ' + atob('Z2hwX0JmQVVpQ0J3ajJ5Y2JMeVBYb1N6SXRqSms5Z0xMMHZIUExi'),
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                      title: `Feedback: ${new Date().toLocaleString()}`,
+                      body: feedback,
+                      labels: ['feedback']
+                    })
+                  }).then(() => {
+                    feedbackPanel.innerHTML = `
+                      <div class="feedback-success">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#c41e3a" stroke-width="2">
+                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <p>Vielen Dank für Ihr Feedback!</p>
+                      </div>
+                    `;
+                  });
+                }
+              });
+            }, 300);
+          }, 2000);
+        });
+      }
+    });
   </script>
+  <script>
+    // Feedback Widget
+    window.FeedbackWidget = {
+      position: 'bottom-right',
+      theme: 'light',
+      projectId: 'get-at-clone',
+      githubRepo: 'snyderline0987/get-at-clone'
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/gh/snyderline0987/feedback-widget@main/widget.js" async></script>
 </body>
 </html>
